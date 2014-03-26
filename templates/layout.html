@@ -1,0 +1,13 @@
+<!doctype html>
+<title>SIB Lens</title>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='reset.css') }}">
+<link href='http://fonts.googleapis.com/css?family=Montserrat' rel='stylesheet' type='text/css'>
+<link rel=stylesheet type=text/css href="{{ url_for('static', filename='default.css') }}">
+<link rel=stylesheet type=text/css href="{{ url_for('static',
+                                         filename='app.css') }}">
+<script src="{{ url_for('static', filename='Chart.js') }}"></script>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+<div class=page>
+  <a href="/"><h1>SIB LENS</h1></a>
+  {% block body %}{% endblock %}
+</div>

@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+{% block body %}
+    <form action="." method=get class=query>
+        <input type=text name=query placeholder="e.g. Reduce rough sleeping around Haymarket">
+        <input type=submit value=Predict>
+    </form>
+  {% if query %}
+  <ul class=entries>
+  {% for entry in entries %}
+    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
+  {% else %}
+    <em>Sadly we don't have any data for this query.</em>
+  {% endfor %}
+  <ul>
+  {% endif %}
+{% endblock %}
