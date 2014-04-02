@@ -5,7 +5,7 @@ from decimal import Decimal
 import unicodecsv as csv
 from geopy.geocoders import GoogleV3
 import requests
-import arrow
+#import arrow
 
 geocoder = GoogleV3()
 
@@ -41,9 +41,33 @@ def fetch_data():
                 councils[unique_code][date] = []                
             councils[unique_code][date].append(council)
     return councils
-                
+
+def build_cpid_names():
+    fnames = os.listdir(DATA_PATH+'/'+'councils')
+    cpids = load_cpids()
+    cpid_names = {}
+    for fname in fnames:
+        unique_code = '_'.join(fname.split('_')[:-2])
+        curr = cpids[unique_code]['Clean entity'].title()
+        if unique_code in cpids and curr not in cpid_names:
+            cpid_names[curr] = unique_code
+    return cpid_names
+
+MAPPING = {
+    'City of Westminster':'Westminster City Council',
+    'Lewisham':'Lewisham London Borough Council'
+    }
+
+def fetch_cost(term="Rough sleeping"):
+    resp = requests.get('http://unitcost.toastwaffle.com/api/entry?search=%s' % term)
+    data = json.loads(resp.text)['data']
+    first = data[0]
+    cost = first['current_cost']
+    return cost
+
 def load_council_csv(path):
     data = []
+    print path
     with open(path, 'rb') as f:
         reader = csv.reader(f)
         header = reader.next()
@@ -63,12 +87,15 @@ def total_spend(month):
     INDEX = 0
     if month[0][0] == '':
         INDEX = 1
-    return sum([Decimal(x[INDEX].strip()) for x in month])
+    total = sum([Decimal(x[INDEX].strip()) for x in month])
+    return "%0.2f" % float(total)
 
 def geocode(address):
+    address = address + ', London, United Kingdom'    
     try:        
         place = geocoder.geocode(address)
-    except:
+        print 'Address is %s' % address
+    except Exception as e:
         return None
     return place
 
@@ -89,7 +116,7 @@ def get_location_council(address):
 
 def load_from_file_cache(fname, fn):
     try:
-        f = open(fname, 'r')
+        f = open(fname, 'rb')
         res = json.load(f)
         f.close()
         return res
@@ -99,3 +126,31 @@ def load_from_file_cache(fname, fn):
         json.dump(res, f)
         f.close()
         return res
+
+def parse_query(query):
+    args = query.split(' ')
+    council = ''
+    category = ''
+    place = None
+    if 'around' in args:
+        place = geocode(' '.join(args[args.index('around')+1:]))
+        print place
+        council = get_council(place)
+        category = ' '.join(args[1:args.index('around')])
+    return (category, council, place)
+
+def fetch_history(council, councils):
+    history = {'labels':[], 'data':[]}
+    try:
+        cpids = build_cpid_names()
+        cname = MAPPING[council]
+        cpid = cpids[cname]
+        all = councils[cpid]
+        keys = sorted(all.keys())
+        for month in keys:
+            history['labels'].append(month)
+            focus = all[month][0][:20]
+            history['data'].append(total_spend(focus))
+    except Exception as e:
+        print e
+    return json.dumps(history)

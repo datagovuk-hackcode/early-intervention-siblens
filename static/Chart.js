@@ -1,14 +1,5 @@
-/*!
- * Chart.js
- * http://chartjs.org/
- *
- * Copyright 2013 Nick Downie
- * Released under the MIT license
- * https://github.com/nnnick/Chart.js/blob/master/LICENSE.md
- */
-
 //Define the global Chart Variable as a class.
-window.Chart = function(context){
+var Chart = function(context){
 
 	var chart = this;
 	
@@ -376,7 +367,11 @@ window.Chart = function(context){
 				graphMin : config.scaleStartValue,
 				labels : []
 			}
-			populateLabels(labelTemplateString, calculatedScale.labels,calculatedScale.steps,config.scaleStartValue,config.scaleStepWidth);
+			for (var i=0; i<calculatedScale.steps; i++){
+				if(labelTemplateString){
+				calculatedScale.labels.push(tmpl(labelTemplateString,{value:(config.scaleStartValue + (config.scaleStepWidth * i)).toFixed(getDecimalPlaces (config.scaleStepWidth))}));
+				}
+			}
 		}
 		
 		scaleHop = maxSize/(calculatedScale.steps);
@@ -512,7 +507,11 @@ window.Chart = function(context){
 				graphMin : config.scaleStartValue,
 				labels : []
 			}
-			populateLabels(labelTemplateString, calculatedScale.labels,calculatedScale.steps,config.scaleStartValue,config.scaleStepWidth);
+			for (var i=0; i<calculatedScale.steps; i++){
+				if(labelTemplateString){
+				calculatedScale.labels.push(tmpl(labelTemplateString,{value:(config.scaleStartValue + (config.scaleStepWidth * i)).toFixed(getDecimalPlaces (config.scaleStepWidth))}));
+				}
+			}
 		}
 		
 		scaleHop = maxSize/(calculatedScale.steps);
@@ -526,7 +525,7 @@ window.Chart = function(context){
 			ctx.save();
 			//translate to the centre of the canvas.
 			ctx.translate(width/2,height/2);
-			
+			ctx.rotate(rotationDegree);				
 			//We accept multiple data sets for radar charts, so show loop through each set
 			for (var i=0; i<data.datasets.length; i++){
 				ctx.beginPath();
@@ -560,7 +559,6 @@ window.Chart = function(context){
 					}					
 					
 				}
-				ctx.rotate(rotationDegree);
 				
 			}
 			ctx.restore();
@@ -805,7 +803,11 @@ window.Chart = function(context){
 				graphMin : config.scaleStartValue,
 				labels : []
 			}
-			populateLabels(labelTemplateString, calculatedScale.labels,calculatedScale.steps,config.scaleStartValue,config.scaleStepWidth);
+			for (var i=0; i<calculatedScale.steps; i++){
+				if(labelTemplateString){
+				calculatedScale.labels.push(tmpl(labelTemplateString,{value:(config.scaleStartValue + (config.scaleStepWidth * i)).toFixed(getDecimalPlaces (config.scaleStepWidth))}));
+				}
+			}
 		}
 		
 		scaleHop = Math.floor(scaleHeight/calculatedScale.steps);
@@ -1037,7 +1039,11 @@ window.Chart = function(context){
 				graphMin : config.scaleStartValue,
 				labels : []
 			}
-			populateLabels(labelTemplateString, calculatedScale.labels,calculatedScale.steps,config.scaleStartValue,config.scaleStepWidth);
+			for (var i=0; i<calculatedScale.steps; i++){
+				if(labelTemplateString){
+				calculatedScale.labels.push(tmpl(labelTemplateString,{value:(config.scaleStartValue + (config.scaleStepWidth * i)).toFixed(getDecimalPlaces (config.scaleStepWidth))}));
+				}
+			}
 		}
 		
 		scaleHop = Math.floor(scaleHeight/calculatedScale.steps);
@@ -1308,9 +1314,19 @@ window.Chart = function(context){
 			        numberOfSteps = Math.round(graphRange/stepValue);
 		        }
 	        };
+	        
 
+	        
+	        //Create an array of all the labels by interpolating the string.
+	        
 	        var labels = [];
-	        populateLabels(labelTemplateString, labels, numberOfSteps, graphMin, stepValue);
+	        
+	        if(labelTemplateString){
+		        //Fix floating point errors by setting to fixed the on the same decimal as the stepValue.
+		        for (var i=1; i<numberOfSteps+1; i++){
+		        	labels.push(tmpl(labelTemplateString,{value:(graphMin + (stepValue*i)).toFixed(getDecimalPlaces (stepValue))}));
+		        }
+	        }
 		
 	        return {
 		        steps : numberOfSteps,
@@ -1326,16 +1342,6 @@ window.Chart = function(context){
 
 
 	}
-
-    //Populate an array of all the labels by interpolating the string.
-    function populateLabels(labelTemplateString, labels, numberOfSteps, graphMin, stepValue) {
-        if (labelTemplateString) {
-            //Fix floating point errors by setting to fixed the on the same decimal as the stepValue.
-            for (var i = 1; i < numberOfSteps + 1; i++) {
-                labels.push(tmpl(labelTemplateString, {value: (graphMin + (stepValue * i)).toFixed(getDecimalPlaces(stepValue))}));
-            }
-        }
-    }
 	
 	//Max value from array
 	function Max( array ){
@@ -1422,5 +1428,6 @@ window.Chart = function(context){
 	    return data ? fn( data ) : fn;
 	  };
 }
+
 
 

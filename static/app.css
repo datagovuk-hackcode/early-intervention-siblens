@@ -34,3 +34,18 @@ a, a:visited {
     text-decoration: none;
     color: #111;
 }
+
+ul {
+    margin-top: 50px;
+    margin: auto;
+}
+
+canvas {
+    margin: 50px auto;
+}
+
+li h2 {
+    font-size: 45px;
+    margin-bottom: 5px;
+    font-weight: bold;
+}

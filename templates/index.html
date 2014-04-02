@@ -5,12 +5,35 @@
         <input type=submit value=Predict>
     </form>
   {% if query %}
-  <ul class=entries>
-  {% for entry in entries %}
-    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
-  {% else %}
-    <em>Sadly we don't have any data for this query.</em>
-  {% endfor %}
-  <ul>
+  <h2>{{ query }}</h2>
+      {% if council %}
+          <h3>{{ council }}</h3>
+          <ul class=entries>
+              <li><h2>£{{ cost }}</h2><small>Nationwide costs per individual</small></li>
+              <li><h2></h2><small>Nationwide costs per individual</small></li>
+          {% else %}
+          <em>Sadly we don't have any data for this query.</em>
+          <ul>
+      {% endif %}
+      <canvas id="myChart" width="400" height="400"></canvas>
   {% endif %}
+  <script>
+      var council_history = {{ history|safe }};
+      if(council_history.data) {
+          var ctx = document.getElementById("myChart").getContext("2d");
+          var data = {
+              labels : council_history.labels,
+              datasets : [
+                  {
+                  fillColor : "rgba(220,220,220,0.5)",
+                  strokeColor : "rgba(220,220,220,1)",
+                  pointColor : "rgba(220,220,220,1)",
+                  pointStrokeColor : "#fff",
+                  data : council_history.data
+                  }
+              ]
+          }
+          new Chart(ctx).Line(data,{});
+      }
+  </script>
 {% endblock %}
